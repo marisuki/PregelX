@@ -13,9 +13,8 @@ import java.util.Set;
 import java.util.Vector;
 
 public class PageRank {
-    public static Double rc(){return Math.random();}
     public static void main(String[] argv) throws FileNotFoundException {
-        int threads = 1000;
+        int threads = 500;
         Master<Map<Integer, Double>, Map<Integer, Double>> master =
                 new Master<Map<Integer, Double>, Map<Integer, Double>>("./data/web-Google.txt", threads);
 
@@ -26,11 +25,9 @@ public class PageRank {
                 for(Integer k: domain){
                     for(Integer t: graph.get(k)){
                         if(tmp.containsKey(t)){
-                            tmp.put(t, tmp.get(t) + 1.0/(1.0*graph.get(k).size()));
+                            tmp.put(t, var.get(k)*1.0/graph.get(k).size()*1.0 + tmp.get(t));
                         }
-                        else{
-                            tmp.put(t, var.get(t) + var.get(k)*1.0/(1.0*graph.get(k).size()));
-                        }
+                        else tmp.put(t, var.get(k)*1.0/graph.get(k).size()*1.0);
                     }
                 }
                 return tmp;
@@ -45,12 +42,7 @@ public class PageRank {
                     Map<Integer, Double> tmp = messageQueue.getFirst().data;
                     messageQueue.poll();
                     for(Integer k: tmp.keySet()){
-                        if(!ans.containsKey(k)){
-                            ans.put(k, tmp.get(k));
-                        }
-                        else{
-                            ans.put(k, tmp.get(k) + ans.get(k));
-                        }
+                        ans.put(k, 0.5 * tmp.get(k) + ans.getOrDefault(k, 0.5));
                     }
                 }
                 return ans;
@@ -71,8 +63,6 @@ public class PageRank {
                 int inf = 0x3f3f3f3f;
                 for(Integer i:points) ans.put(i, 0.0);
                 for(Integer i: points) active.put(i, true);
-                ans.put(0, 0.0);
-                for(Integer t: graph.get(0)) ans.put(t, Math.random());
             }
 
             @Override
@@ -91,14 +81,13 @@ public class PageRank {
                 System.out.println(pre);
                 System.out.println(now);
                 for(Integer k: pre.keySet()){
-                    if(now.containsKey(k) && pre.get(k) > now.get(k)){
-                        ans = true;
-                        active.put(k, true);
-                        pre.put(k, now.get(k) + Math.random());
+                    if(now.containsKey(k)){
+                        if(Math.abs(pre.get(k) - now.get(k)) > 1e-2){
+                            ans = true;
+                        }
                     }
-                    else{
-                        active.put(k, false);
-                    }
+                    else now.put(k, pre.get(k));
+                    //ans = true;
                 }
                 return ans;
             }
@@ -112,7 +101,7 @@ public class PageRank {
         for(Integer k: ans.keySet()){
             System.out.print(k);
             System.out.print(": ");
-            System.out.println(ans.get(k)+rc());
+            System.out.println(ans.get(k));
         }
     }
 }

@@ -32,7 +32,7 @@ public abstract class BSP<MessageDataType, AnsValueType> {
         init();
         Boolean stat = true;
         Vector<Set<Integer>> pending = partResult;
-        long start = System.currentTimeMillis();
+        //long start = System.currentTimeMillis();
         while(stat){
             for(int i=0;i<pending.size();i++){
                 Worker<MessageDataType, AnsValueType> work = new Worker<MessageDataType, AnsValueType>(graph, partResult.get(i), compute.get(i), combine);
@@ -41,13 +41,13 @@ public abstract class BSP<MessageDataType, AnsValueType> {
             }
             AnsValueType tmp = combine.combine();
             stat = UpdateActiveMap(ans, tmp);
-            //ans = tmp;
+            ans = tmp;
             pending = checkActive();
             printResult();
         }
-        long end = System.currentTimeMillis();
-        System.out.println("Total Time:");
-        System.out.println(end-start);
+        //long end = System.currentTimeMillis();
+        //System.out.println("Total Time:");
+        //System.out.println(end-start);
     }
 
     public abstract void printResult();
